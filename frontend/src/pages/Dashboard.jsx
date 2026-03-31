@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useJobs, useRunPipeline } from '../hooks/useJobs.js';
 import { useSearches } from '../hooks/useSearches.js';
 import JobCard from '../components/JobCard.jsx';
@@ -17,6 +17,18 @@ export default function Dashboard() {
   const [sort, setSort] = useState('score');
   const [tab, setTab] = useState('active');
   const [selectedSearchId, setSelectedSearchId] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const { data: searchesData, isLoading: isSearchesLoading } = useSearches();
   const searches = searchesData || [];
@@ -76,25 +88,81 @@ export default function Dashboard() {
         {/* Main Feed */}
         <div className="page-main">
           
-          {/* Saved Searches Tabs */}
-          <div className="sort-tabs" style={{ marginBottom: '24px', overflowX: 'auto', borderBottom: '2px solid var(--gray-800)' }}>
-            {searches.map(s => (
-              <button 
-                key={s.id}
-                className={`sort-tab ${selectedSearchId === s.id ? 'active' : ''}`} 
-                onClick={() => setSelectedSearchId(s.id)}
-                style={{ fontSize: '15px', fontWeight: 600, padding: '12px 20px', whiteSpace: 'nowrap' }}
-              >
-                {s.name}
-              </button>
-            ))}
-            {searches.length === 0 && !isSearchesLoading && (
-               <div style={{ padding: '12px', color: 'var(--text-secondary)' }}>No saved searches found.</div>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '20px', margin: 0 }}>Jobs for {searches.find(s => s.id === selectedSearchId)?.name || '...'}</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            {/* Custom Dropdown for Saved Searches */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h2 style={{ fontSize: '20px', margin: 0, color: 'var(--text-secondary)', fontWeight: 500 }}>Jobs for</h2>
+              
+              <div className="search-dropdown-container" ref={dropdownRef} style={{ position: 'relative' }}>
+                <button 
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    cursor: 'pointer',
+                    fontSize: '20px',
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
+                    background: dropdownOpen ? 'var(--bg-hover)' : 'transparent',
+                    border: 'none',
+                    padding: '4px 8px',
+                    borderRadius: 'var(--radius-sm)',
+                    transition: 'background 0.2s',
+                    outline: 'none'
+                  }}
+                  onMouseEnter={(e) => { if(!dropdownOpen) e.currentTarget.style.background = 'var(--bg-hover)' }}
+                  onMouseLeave={(e) => { if(!dropdownOpen) e.currentTarget.style.background = 'transparent' }}
+                >
+                  {searches.find(s => s.id === selectedSearchId)?.name || 'Select a Profile'}
+                  <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', transform: dropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
+                </button>
+                
+                {dropdownOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: '4px',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-light)',
+                    borderRadius: 'var(--radius-md)',
+                    boxShadow: 'var(--shadow-lg)',
+                    minWidth: '220px',
+                    zIndex: 100,
+                    overflow: 'hidden'
+                  }}>
+                    {searches.map(s => (
+                      <div
+                        key={s.id}
+                        onClick={() => {
+                          setSelectedSearchId(s.id);
+                          setDropdownOpen(false);
+                        }}
+                        style={{
+                          padding: '10px 16px',
+                          cursor: 'pointer',
+                          fontSize: '15px',
+                          fontWeight: selectedSearchId === s.id ? 600 : 500,
+                          color: selectedSearchId === s.id ? 'var(--primary-600)' : 'var(--text-secondary)',
+                          background: selectedSearchId === s.id ? 'var(--primary-50)' : 'transparent',
+                          transition: 'background 0.15s, color 0.15s'
+                        }}
+                        onMouseEnter={(e) => { if(selectedSearchId !== s.id) { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+                        onMouseLeave={(e) => { if(selectedSearchId !== s.id) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
+                      >
+                        {s.name}
+                      </div>
+                    ))}
+                    {searches.length === 0 && !isSearchesLoading && (
+                      <div style={{ padding: '12px 16px', color: 'var(--text-tertiary)', fontSize: '14px' }}>
+                        No saved searches
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
             
             {/* Sort Tabs */}
             <div className="sort-tabs" style={{ margin: 0 }}>
