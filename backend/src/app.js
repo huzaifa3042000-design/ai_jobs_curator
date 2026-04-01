@@ -9,9 +9,10 @@ dotenv.config();
 
 import routes from './routes/index.js';
 import { runFetchWorker } from './workers/fetchJobs.worker.js';
-import { runScoreWorker } from './workers/scoreJobs.worker.js';
 import { runRefreshWorker } from './workers/refreshJobs.worker.js';
-import { logger } from './utils/logger.js';
+import { initLogger, logger } from './utils/logger.js';
+
+initLogger();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,23 +32,26 @@ cron.schedule('*/10 * * * *', () => {
   logger.info('Cron: Triggering job fetch');
   runFetchWorker();
 });
+logger.info('Worker scheduled: fetchAndScore@10min');
+runFetchWorker();
 
 // Score unscored jobs every 5 minutes
-cron.schedule('*/5 * * * *', () => {
-  logger.info('Cron: Triggering job scoring');
-  runScoreWorker();
-});
+// cron.schedule('*/5 * * * *', () => {
+//   logger.info('Cron: Triggering job scoring');
+//   runScoreWorker();
+// });
 
 // Cleanup stale jobs every 30 minutes
 cron.schedule('*/30 * * * *', () => {
   logger.info('Cron: Triggering cleanup');
   runRefreshWorker();
 });
+logger.info('Worker scheduled: cleanup@30min');
 
 // ── Start ────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   logger.info(`Backend server running on http://localhost:${PORT}`);
-  logger.info('Workers scheduled: fetch@10min, score@5min, cleanup@30min');
+  // logger.info('Workers scheduled: fetch@10min, score@5min, cleanup@30min');
 });
 
 export default app;

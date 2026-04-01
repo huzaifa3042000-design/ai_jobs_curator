@@ -1,8 +1,18 @@
 import supabase from "./supabase.js";
+import { logger } from '../utils/logger.js';
+
+/** PostgREST `in.(...)` list for text ids that may contain special characters (e.g. Upwork `~…` ids). */
+function postgrestInTuple(values) {
+    const escaped = values
+        .map((v) => `"${String(v).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`)
+        .join(",");
+    return `(${escaped})`;
+}
 
 // ── Preferences ──────────────────────────────────────────────────
 
 export async function getSavedSearches(userId) {
+    logger.debug(`Getting saved searches for user: ${userId}`);
     const { data, error } = await supabase
         .from("saved_searches")
         .select("*")
@@ -265,6 +275,7 @@ export async function getLatestFetchCompletedAt(userId, savedSearchId) {
 // ── Scores ───────────────────────────────────────────────────────
 
 export async function upsertJobScores(scores) {
+    logger.info(`Upserting ${scores.length} job scores`);
     if (!scores.length) return [];
     const { data, error } = await supabase
         .from("job_scores")
@@ -291,7 +302,8 @@ export async function getUnscoredJobs(searchId, limit = 10) {
         .limit(limit);
 
     if (scoredJobIds.length > 0) {
-        query = query.not("id", "in", scoredJobIds);
+        // `.not('id','in', array)` stringifies the array unquoted; ids like `~0123` break PostgREST.
+        query = query.not("id", "in", postgrestInTuple(scoredJobIds));
     }
 
     const { data, error } = await query;
@@ -331,14 +343,14 @@ export async function addFeedback(userId, jobId, feedback, note) {
 
 // ── Cleanup ──────────────────────────────────────────────────────
 
-export async function cleanupStaleJobs(hoursOld = 48) {
+export async function cleanupStaleJobs(hoursOld = 24) {
     const cutoff = new Date(
         Date.now() - hoursOld * 60 * 60 * 1000
     ).toISOString();
     const { data, error } = await supabase
         .from("jobs")
         .update({ is_active: false, updated_at: new Date().toISOString() })
-        .lt("last_fetched_at", cutoff)
+        .lt("posted_at", cutoff)
         .eq("is_active", true)
         .select("id");
     if (error) throw error;

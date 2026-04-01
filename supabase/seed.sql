@@ -74,19 +74,19 @@ INSERT INTO job_scores (job_id, user_id, saved_search_id, score, reasoning, risk
 VALUES
 ('~01111111', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 94, 'Perfect match for your React and AI skills. High budget and verified client with massive spend history.', 10, 95, 90, 98),
 ('~02222222', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 88, 'Strong match on Node/Postgres stack. Hourly rate is within your premium range and client is highly rated.', 15, 85, 90, 90),
-('~03333333', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 75, 'Good fit for Supabase/Next.js, but budget is a bit on the lower side for your preferences.', 20, 90, 60, 80),
-('~04444444', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 52, 'Risky due to unverified payment and very high competition already (60+ proposals). Match on AI/Python is good though.', 65, 80, 70, 20),
+('~03333333', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 75, 'Good fit for Supabase/Next.js, but budget is a bit on the lower side for your preferences.', 20, 90, 60, 80),
+('~04444444', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 52, 'Risky due to unverified payment and very high competition already (60+ proposals). Match on AI/Python is good though.', 65, 80, 70, 20),
 ('~05555555', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 30, 'Below your experience level and minimum budget. Client hires a lot but rates are very low.', 25, 40, 20, 50),
-('~06666666', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 82, 'Excellent technical match for TS migration. High client quality and manageable competition.', 18, 95, 80, 85),
+('~06666666', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 82, 'Excellent technical match for TS migration. High client quality and manageable competition.', 18, 95, 80, 85),
 ('~07777777', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 91, 'Perfect alignment with AI/Gemini focus. High budget and expert level requirement.', 12, 98, 90, 75),
 ('~08888888', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 85, 'Premium rate match for Postgres optimization. Low competition (only 2 proposals).', 10, 85, 95, 90),
-('~09000000', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', 68, 'High budget but React Native is not your primary core skill. High competition is a deterrent.', 35, 60, 95, 85),
+('~09000000', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004', 68, 'High budget but React Native is not your primary core skill. High competition is a deterrent.', 35, 60, 95, 85),
 ('~10000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 20, 'Not a professional match. Low budget, unverified payment, and high competition.', 80, 30, 10, 10),
-('~11000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 90, 'High-end architecture role on AWS/Node. Exceptional budget match and client quality.', 5, 80, 98, 98),
+('~11000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 90, 'High-end architecture role on AWS/Node. Exceptional budget match and client quality.', 5, 80, 98, 98),
 ('~12000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 45, 'Limited alignment with core JS/Node skills. Mostly Shopify specific.', 30, 40, 60, 70),
-('~13000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 84, 'Solid match for Node.js and Socket.io. Good client and hourly rate.', 20, 90, 85, 80),
-('~14000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 72, 'Good fit for Python automation, but not focused on your primary web stack.', 25, 75, 70, 75),
-('~15000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 87, 'Security review roles pays well and matches your technical expertise in Node.js backends.', 15, 80, 90, 95)
+('~13000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 84, 'Solid match for Node.js and Socket.io. Good client and hourly rate.', 20, 90, 85, 80),
+('~14000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 72, 'Good fit for Python automation, but not focused on your primary web stack.', 25, 75, 70, 75),
+('~15000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 87, 'Security review roles pays well and matches your technical expertise in Node.js backends.', 15, 80, 90, 95)
 ON CONFLICT (job_id, saved_search_id) DO NOTHING;
 
 -- 4. User Feedback

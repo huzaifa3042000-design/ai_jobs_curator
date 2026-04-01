@@ -8,6 +8,7 @@ import { DEFAULT_USER_ID } from '../../../shared/constants.js';
  * Rule-based pre-scoring (fast, no LLM)
  */
 function ruleBasedScore(job, preferences) {
+  logger.debug(`Rule-based scoring job: ${job.id}`);
   let score = 50;
   const factors = [];
 
@@ -82,6 +83,7 @@ export async function scoreNewJobs(userId = DEFAULT_USER_ID, batchSize = 5) {
     const unscoredJobs = await getUnscoredJobs(search.id, batchSize);
 
     if (unscoredJobs.length === 0) {
+      logger.info(`No unscored jobs found for search: ${search.name}, skipping...`);
       continue;
     }
 
@@ -118,5 +120,6 @@ export async function scoreNewJobs(userId = DEFAULT_USER_ID, batchSize = 5) {
     }
   }
 
+  logger.info(`Scored ${totalScored} jobs for ${searches.length} searches`);
   return totalScored;
 }

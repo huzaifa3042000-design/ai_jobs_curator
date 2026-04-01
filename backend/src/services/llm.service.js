@@ -34,6 +34,7 @@ async function callOpenRouter(messages, options = {}) {
 // ── Score a Job ──────────────────────────────────────────────────
 
 export async function scoreJob(job, preferences) {
+  logger.debug(`Scoring job: ${job.id}`);
   const systemPrompt = `You are an expert freelancer career advisor analyzing Upwork job postings.
 You will evaluate a job posting against a freelancer's preferences and return a JSON assessment.
 
