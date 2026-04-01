@@ -71,9 +71,6 @@ export default function Dashboard() {
             <a href="#" className={tab === 'active' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setTab('active'); }}>
               Active Feed
             </a>
-            <a href="#" className={tab === 'history' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setTab('history'); }}>
-              History
-            </a>
           </div>
         </div>
 
