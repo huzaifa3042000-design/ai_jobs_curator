@@ -39,11 +39,12 @@ export default function Dashboard() {
     }
   }, [searches, selectedSearchId]);
 
-  const { data, isLoading, error, dataUpdatedAt } = useJobs({ sort, limit: 30, searchId: selectedSearchId });
+  const { data, isLoading, error } = useJobs({ sort, limit: 30, searchId: selectedSearchId });
   const pipeline = useRunPipeline();
 
   const jobs = data?.jobs || [];
   const stats = data?.stats || {};
+  const latestFetchCompletedAt = data?.meta?.latestFetchCompletedAt || null;
 
   const handleRefresh = () => {
     pipeline.mutate();
@@ -55,7 +56,7 @@ export default function Dashboard() {
       <header className="page-header">
         <div className="header-left">
           <div className="last-updated">
-            {dataUpdatedAt ? `Last updated ${timeAgo(new Date(dataUpdatedAt).toISOString())}` : 'Loading...'}
+            {latestFetchCompletedAt ? `Last updated ${timeAgo(latestFetchCompletedAt)}` : 'Never fetched'}
             <button
               className={`refresh-btn ${pipeline.isPending ? 'spinning' : ''}`}
               onClick={handleRefresh}

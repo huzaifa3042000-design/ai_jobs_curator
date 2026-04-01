@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getJobs, getJobById, getStats } from '../db/queries.js';
+import { getJobs, getJobById, getStats, getLatestFetchCompletedAt } from '../db/queries.js';
 import { fetchAndStoreJobs, refreshJob, runFullPipeline } from '../services/job.service.js';
 import { scoreNewJobs } from '../services/scoring.service.js';
 import { generateProposal } from '../services/llm.service.js';
@@ -22,8 +22,14 @@ router.get('/', async (req, res) => {
 
     const jobs = await getJobs({ sort, limit, offset, userId: DEFAULT_USER_ID, searchId });
     const stats = await getStats(DEFAULT_USER_ID);
+    const latestFetchCompletedAt = await getLatestFetchCompletedAt(DEFAULT_USER_ID, searchId);
 
-    res.json({ jobs, stats, pagination: { limit, offset, sort, searchId } });
+    res.json({
+      jobs,
+      stats,
+      pagination: { limit, offset, sort, searchId },
+      meta: { latestFetchCompletedAt },
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

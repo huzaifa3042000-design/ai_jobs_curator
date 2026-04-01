@@ -6,7 +6,7 @@ INSERT INTO saved_searches (id, user_id, name, skills, budget_min, hourly_rate_m
 VALUES (
   '00000000-0000-0000-0000-000000000002',
   '00000000-0000-0000-0000-000000000001',
-  'React / AI Expert',
+  'React Expert',
   ARRAY['React', 'Node.js', 'PostgreSQL', 'AI', 'Tailwind', 'TypeScript'],
   1000,
   50,
@@ -15,7 +15,34 @@ VALUES (
   3,
   2,
   'Focus on high-quality clients with verified payment. Prefer long-term projects or AI/ML integrations.'
-) ON CONFLICT (id) DO UPDATE SET
+),
+(
+  '00000000-0000-0000-0000-000000000003',
+  '00000000-0000-0000-0000-000000000001',
+  'Security Audit',
+  ARRAY['Security', 'Audit', 'Cybersecurity', 'Penetration Testing', 'Red Team', 'Blue Team'],
+  1000,
+  50,
+  'EXPERT',
+  2,
+  3,
+  2,
+  'Focus on high-quality clients with verified payment. Prefer long-term projects or AI/ML integrations.'
+),
+(
+  '00000000-0000-0000-0000-000000000004',
+  '00000000-0000-0000-0000-000000000001',
+  'Mobile Development',
+  ARRAY['React Native', 'Firebase', 'Android', 'iOS', 'Flutter', 'Swift', 'Kotlin'],
+  1000,
+  50,
+  'EXPERT',
+  2,
+  3,
+  2,
+  'Focus on high-quality clients with verified payment. Prefer long-term projects or AI/ML integrations.'
+)
+ ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   skills = EXCLUDED.skills,
   budget_min = EXCLUDED.budget_min,
@@ -71,3 +98,57 @@ VALUES
 ('00000000-0000-0000-0000-000000000001', '~07777777', 'GOOD', 'AI agents are exactly what I want to work on.'),
 ('00000000-0000-0000-0000-000000000001', '~10000000', 'BAD', 'Scammy vibe.')
 ON CONFLICT (user_id, job_id) DO NOTHING;
+
+-- 5. Job Fetch Log (per saved search)
+INSERT INTO job_fetch_log (
+  id,
+  user_id,
+  saved_search_id,
+  fetched_count,
+  api_calls_used,
+  status,
+  error_message,
+  started_at,
+  completed_at
+)
+VALUES
+(
+  '00000000-0000-0000-0000-000000000101',
+  '00000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000002',
+  8,
+  1,
+  'success',
+  NULL,
+  NOW() - INTERVAL '3 hours',
+  NOW() - INTERVAL '2 hours 58 minutes'
+),
+(
+  '00000000-0000-0000-0000-000000000102',
+  '00000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000002',
+  6,
+  1,
+  'success',
+  NULL,
+  NOW() - INTERVAL '1 hour 25 minutes',
+  NOW() - INTERVAL '1 hour 23 minutes'
+),
+(
+  '00000000-0000-0000-0000-000000000103',
+  '00000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000002',
+  0,
+  1,
+  'failed',
+  'Upwork API rate limit exceeded',
+  NOW() - INTERVAL '25 minutes',
+  NOW() - INTERVAL '24 minutes'
+)
+ON CONFLICT (id) DO UPDATE SET
+  fetched_count = EXCLUDED.fetched_count,
+  api_calls_used = EXCLUDED.api_calls_used,
+  status = EXCLUDED.status,
+  error_message = EXCLUDED.error_message,
+  started_at = EXCLUDED.started_at,
+  completed_at = EXCLUDED.completed_at;

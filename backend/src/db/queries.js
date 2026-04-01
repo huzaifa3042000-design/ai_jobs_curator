@@ -146,6 +146,61 @@ export async function getJobCount() {
   return count || 0;
 }
 
+// ── Job Fetch Log ────────────────────────────────────────────────
+
+export async function insertJobFetchLogStart({ userId, savedSearchId, startedAt = new Date().toISOString() }) {
+  const { data, error } = await supabase
+    .from('job_fetch_log')
+    .insert({
+      user_id: userId,
+      saved_search_id: savedSearchId,
+      started_at: startedAt,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function completeJobFetchLog({
+  id,
+  fetchedCount = 0,
+  apiCallsUsed = 0,
+  completedAt = new Date().toISOString(),
+  status = 'success',
+  errorMessage = null,
+}) {
+  const { data, error } = await supabase
+    .from('job_fetch_log')
+    .update({
+      fetched_count: fetchedCount,
+      api_calls_used: apiCallsUsed,
+      completed_at: completedAt,
+      status,
+      error_message: errorMessage,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function getLatestFetchCompletedAt(userId, savedSearchId) {
+  const { data, error } = await supabase
+    .from('job_fetch_log')
+    .select('completed_at')
+    .eq('user_id', userId)
+    .eq('saved_search_id', savedSearchId)
+    .eq('status', 'success')
+    .not('completed_at', 'is', null)
+    .order('completed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.completed_at || null;
+}
+
 // ── Scores ───────────────────────────────────────────────────────
 
 export async function upsertJobScores(scores) {

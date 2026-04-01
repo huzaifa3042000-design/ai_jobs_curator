@@ -109,6 +109,25 @@ CREATE TABLE IF NOT EXISTS job_scores (
   UNIQUE(job_id, saved_search_id)
 );
 
+-- Job Fetch Log (per saved search Upwork fetch lifecycle)
+CREATE TABLE IF NOT EXISTS job_fetch_log (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  user_id uuid NOT NULL,
+  saved_search_id uuid NOT NULL REFERENCES saved_searches(id) ON DELETE CASCADE,
+
+  fetched_count int NOT NULL DEFAULT 0,
+  api_calls_used int NOT NULL DEFAULT 0,
+
+  status text NOT NULL DEFAULT 'success',
+  error_message text,
+
+  started_at timestamp NOT NULL,
+  completed_at timestamp,
+
+  created_at timestamp DEFAULT now()
+);
+
 -- User Feedback
 CREATE TABLE IF NOT EXISTS user_feedback (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -128,4 +147,6 @@ CREATE INDEX IF NOT EXISTS idx_jobs_posted_at ON jobs(posted_at DESC);
 CREATE INDEX IF NOT EXISTS idx_jobs_is_active ON jobs(is_active);
 CREATE INDEX IF NOT EXISTS idx_job_scores_job_search ON job_scores(job_id, saved_search_id);
 CREATE INDEX IF NOT EXISTS idx_job_scores_score ON job_scores(score DESC);
+CREATE INDEX IF NOT EXISTS idx_job_fetch_log_search_completed ON job_fetch_log(saved_search_id, completed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_job_fetch_log_user_completed ON job_fetch_log(user_id, completed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_user_feedback_user_job ON user_feedback(user_id, job_id);

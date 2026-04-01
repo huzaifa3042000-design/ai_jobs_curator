@@ -30,7 +30,7 @@ AI-powered job curator for Upwork. Fetches jobs via Upwork GraphQL API, scores t
 
 ## Critical Workflows
 -   **Run Dev**: `npm run dev` (starts both frontend and backend).
--   **Fetch & Score**: Manually triggered via `/api/jobs/pipeline` or via cron every 10 min.
+-   **Fetch & Score**: Manual full pipeline via `/api/jobs/pipeline`; automation runs via cron: fetch every 10 min, score every 5 min, cleanup every 30 min.
 -   **Schema Updates**: Migrations are in `/supabase/migrations`.
 
 ## Reference Patterns

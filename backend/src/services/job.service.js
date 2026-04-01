@@ -1,5 +1,11 @@
 import { searchJobs } from './upwork.service.js';
-import { upsertJobs, getSavedSearches, getJobById } from '../db/queries.js';
+import {
+  upsertJobs,
+  getSavedSearches,
+  getJobById,
+  insertJobFetchLogStart,
+  completeJobFetchLog,
+} from '../db/queries.js';
 import { scoreNewJobs } from './scoring.service.js';
 import { logger } from '../utils/logger.js';
 import { DEFAULT_USER_ID } from '../../../shared/constants.js';
@@ -17,11 +23,38 @@ export async function fetchAndStoreJobs(userId = DEFAULT_USER_ID) {
 
   let totalFetched = 0;
   for (const search of searches) {
-    logger.info(`Fetching jobs for search: ${search.name}`);
-    const { jobs, totalCount } = await searchJobs(search);
-    if (jobs.length > 0) {
-      await upsertJobs(jobs);
-      totalFetched += jobs.length;
+    const startedAt = new Date().toISOString();
+    const fetchLog = await insertJobFetchLogStart({
+      userId,
+      savedSearchId: search.id,
+      startedAt,
+    });
+
+    try {
+      logger.info(`Fetching jobs for search: ${search.name}`);
+      const { jobs } = await searchJobs(search);
+      if (jobs.length > 0) {
+        await upsertJobs(jobs);
+        totalFetched += jobs.length;
+      }
+
+      await completeJobFetchLog({
+        id: fetchLog.id,
+        fetchedCount: jobs.length,
+        apiCallsUsed: 1,
+        completedAt: new Date().toISOString(),
+        status: 'success',
+      });
+    } catch (error) {
+      await completeJobFetchLog({
+        id: fetchLog.id,
+        fetchedCount: 0,
+        apiCallsUsed: 1,
+        completedAt: new Date().toISOString(),
+        status: 'failed',
+        errorMessage: error.message,
+      });
+      logger.error(`Fetch failed for search: ${search.name}`, error);
     }
   }
 
