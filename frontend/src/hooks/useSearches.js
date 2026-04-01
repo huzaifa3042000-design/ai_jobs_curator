@@ -28,3 +28,10 @@ export function useDeleteSearch() {
     },
   });
 }
+
+export function useImproveSkills() {
+  return useMutation({
+    mutationFn: ({ profileName, currentSkills }) =>
+      api.improveSkills(profileName, currentSkills),
+  });
+}

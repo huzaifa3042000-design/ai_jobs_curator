@@ -67,3 +67,12 @@ export const deleteSearch = (id) =>
 
 // ── Stats ────────────────────────────────────────────────────────
 export const getStats = () => request('/jobs/stats');
+
+export const improveSkills = (profileName, currentSkills = []) =>
+  request('/searches/improve-skills', {
+    method: 'POST',
+    body: JSON.stringify({
+      profileName,
+      currentSkills,
+    }),
+  });
