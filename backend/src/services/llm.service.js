@@ -150,3 +150,80 @@ Freelancer's Instructions: ${preferences?.instructions || 'None'}`;
 
   return response;
 }
+
+// ── Improve Skills with AI ───────────────────────────────────────
+ 
+export async function improveSkillsWithAI(profileName,currentSkills = []) {
+  const systemPrompt = `You are an expert in freelance skill optimization.
+
+Your task is to IMPROVE and SLIGHTLY EXPAND a given set of skills.
+
+STRICT RULES:
+- Stay within the SAME DOMAIN as the provided skills
+- You may:
+  • Refine wording (e.g., "react" → "React.js")
+  • Expand into closely related skills (e.g., "React" → "React Hooks", "Redux")
+  • Add adjacent tools/frameworks that are commonly used TOGETHER
+- DO NOT introduce unrelated fields or technologies
+- DO NOT change career direction
+- All suggestions must logically follow from the existing skills
+
+SCOPE GUIDELINE:
+- If input is frontend → stay frontend
+- If input is backend → stay backend
+- If input is data → stay data
+- Never cross domains unless it's naturally connected
+
+GOOD:
+Input: ["react", "javascript"]
+Output: ["React.js", "React Hooks", "Redux", "Modern JavaScript (ES6+)"]
+
+BAD:
+Input: ["react"]
+Output: ["Python", "Machine Learning"] ❌
+
+Return ONLY valid JSON.`;
+
+  const userPrompt = `Current Skills:
+${currentSkills.length > 0 ? currentSkills.join(', ') : 'None'}
+
+Return:
+{
+  "suggestedSkills": ["skill1", "skill2", "skill3"]
+}`;
+
+  try {
+    const response = await callOpenRouter(
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      { temperature: 0.4, // lower = more controlled
+        maxTokens: 300 }
+    );
+
+    logger.info('AI Response', { response });
+
+    const jsonStr = response
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .trim();
+
+    const parsed = JSON.parse(jsonStr);
+
+    return {
+      suggestedSkills: Array.isArray(parsed.suggestedSkills)
+        ? parsed.suggestedSkills
+        : [],
+    };
+  } catch (err) {
+    logger.error('Skill improvement failed', {
+      error: err.message,
+      currentSkills,
+    });
+
+    return {
+      suggestedSkills: [],
+    };
+  }
+}

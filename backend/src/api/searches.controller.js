@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getSavedSearches, upsertSavedSearch, deleteSavedSearch } from '../db/queries.js';
 import { validatePreferences } from '../../../shared/schemas.js';
 import { DEFAULT_USER_ID } from '../../../shared/constants.js';
+import { improveSkillsWithAI } from '../services/llm.service.js';
 
 const router = Router();
 
@@ -42,6 +43,27 @@ router.delete('/:id', async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/searches/improve-skills
+router.post('/improve-skills', async (req, res) => {
+  try {
+    const { profileName, currentSkills } = req.body;
+
+    // Basic validation
+    if (!profileName || profileName.trim() === '') {
+      return res.status(400).json({ error: 'profileName is required' });
+    }
+
+    const skillsArray = Array.isArray(currentSkills) ? currentSkills : [];
+
+    const result = await improveSkillsWithAI(profileName, skillsArray);
+
+    res.json(result);
+  } catch (err) {
+    console.error('Improve skills endpoint failed:', err);
+    res.status(500).json({ error: 'Failed to improve skills' });
   }
 });
 
