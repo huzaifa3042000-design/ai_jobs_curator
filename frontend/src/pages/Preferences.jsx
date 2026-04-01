@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearches, useUpdateSearch, useDeleteSearch } from '../hooks/useSearches.js';
+import { useSearches, useUpdateSearch, useDeleteSearch, useImproveSkills } from '../hooks/useSearches.js';
 import { useRunPipeline } from '../hooks/useJobs.js';
 
 function CollapsibleSection({ icon, title, defaultOpen = false, children }) {
@@ -22,9 +22,11 @@ export default function Preferences() {
   const { data: searches, isLoading } = useSearches();
   const updateSearch = useUpdateSearch();
   const deleteSearch = useDeleteSearch();
+  const improveSkills = useImproveSkills();
   const pipeline = useRunPipeline();
 
   const [activeSearchId, setActiveSearchId] = useState('new');
+  const [suggestedSkills, setSuggestedSkills] = useState([]);
 
   const defaultForm = {
     name: 'New Search',
@@ -50,6 +52,26 @@ export default function Preferences() {
 
   const [newSkill, setNewSkill] = useState('');
   const [saved, setSaved] = useState(false);
+  const [isImproving, setIsImproving] = useState(false);
+
+  const handleImproveSkills = async () => {
+  try {
+    const data = await improveSkills.mutateAsync({
+      profileName: form.name,
+      currentSkills: form.skills,
+    });
+
+    const filtered = (data.suggestedSkills || []).filter(
+      (s) => !form.skills.includes(s)
+    );
+
+    setSuggestedSkills(filtered);
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message || 'AI failed to suggest skills');
+  }
+};
 
   useEffect(() => {
     if (searches && searches.length > 0 && activeSearchId === 'new' && !form.id && form.name === 'New Search') {
@@ -199,6 +221,38 @@ export default function Preferences() {
               </div>
             </div>
 
+            {suggestedSkills.length > 0 && (
+              <div style={{ marginTop: '12px' }}>
+                <label className="form-label">AI Suggestions</label>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {suggestedSkills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="skill-tag skill-tag-secondary skill-tag-removable"
+                      onClick={() =>
+                        setSuggestedSkills((prev) => prev.filter((s) => s !== skill))
+                      }
+                    >
+                      {skill}
+                      <span className="remove-btn">×</span>
+                    </span>
+                  ))}
+                </div>
+
+                <button
+                  className="btn btn-primary"
+                  style={{ marginTop: '8px' }}
+                  onClick={() => {
+                    handleChange('skills', [...form.skills, ...suggestedSkills]);
+                    setSuggestedSkills([]);
+                  }}
+                >
+                  ➕ Add Selected Skills
+                </button>
+              </div>
+            )}
+
             <div className="form-group">
               <label className="form-label">Editorial Intent (Free-form)</label>
               <textarea
@@ -208,6 +262,14 @@ export default function Preferences() {
                 onChange={(e) => handleChange('instructions', e.target.value)}
               />
             </div>
+            <button
+              className="btn btn-secondary"
+              onClick={handleImproveSkills}
+              disabled={improveSkills.isPending}
+              style={{ marginTop: '8px' }}
+            >
+              {improveSkills.isPending ? 'Improving...' : '✨ Improve with AI'}
+            </button>
           </CollapsibleSection>
 
           {/* Core Job Filters */}
