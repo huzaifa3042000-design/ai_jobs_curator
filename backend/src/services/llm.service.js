@@ -4,6 +4,7 @@ import { OPENROUTER_API_URL } from '../../../shared/constants.js';
 const MODEL = process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-001';
 
 async function callOpenRouter(messages, options = {}) {
+  logger.debug(`Calling OpenRouter with messages: ${messages}`);
   const res = await fetch(OPENROUTER_API_URL, {
     method: 'POST',
     headers: {
@@ -20,14 +21,18 @@ async function callOpenRouter(messages, options = {}) {
       response_format: options.responseFormat,
     }),
   });
+  logger.debug(`OpenRouter response: ${res}`);
 
   if (!res.ok) {
     const err = await res.text();
+    logger.info('OpenRouter API error', { status: res.status, body: err });
     logger.error('OpenRouter API error', { status: res.status, body: err });
     throw new Error(`OpenRouter error: ${res.status}`);
   }
 
+  logger.debug(`OpenRouter response status: ${res.status}`);
   const data = await res.json();
+  logger.debug(`OpenRouter data: ${data}`);
   return data.choices?.[0]?.message?.content || '';
 }
 
@@ -91,9 +96,12 @@ Return JSON: {"score", "skill_match_score", "budget_match_score", "client_qualit
       { temperature: 0.2, maxTokens: 500 }
     );
 
+    logger.debug(`OpenRouter response: ${response}`);
+
     // Parse JSON from response
     const jsonStr = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const parsed = JSON.parse(jsonStr);
+    logger.debug(`Parsed response: ${parsed}`);
 
     return {
       score: Math.round(Number(parsed.score) || 50),
@@ -105,6 +113,7 @@ Return JSON: {"score", "skill_match_score", "budget_match_score", "client_qualit
     };
   } catch (err) {
     logger.error('LLM scoring failed', { jobId: job.id, error: err.message });
+    logger.error('LLM scoring failed', err);
     return {
       score: 50,
       skill_match_score: 50,

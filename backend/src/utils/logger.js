@@ -17,7 +17,7 @@ function serializeMeta(meta) {
   return {
     name: meta.name,
     message: meta.message,
-    // stack: meta.stack,
+    stack: meta.stack,
     ...(meta.cause ? { cause: meta.cause instanceof Error ? serializeMeta(meta.cause) : meta.cause } : {}),
   };
 }

@@ -205,9 +205,19 @@ export default function Dashboard() {
           )}
 
           {/* Job Cards */}
+          {/* {console.log('jobs')}
+          {console.log(jobs)} */}
           {jobs.map((job) => (
             <JobCard key={job.id} job={job} searchId={selectedSearchId} />
           ))}
+          {/* 
+            {jobs.map((job, index) => (
+            <JobCard
+              key={job.id ?? job.ciphertext ?? `job-${index}`}
+              job={job}
+              searchId={selectedSearchId}
+            />
+          */}
 
           {pipeline.isSuccess && (
             <div style={{ textAlign: 'center', padding: '12px', color: 'var(--success)', fontSize: '14px' }}>

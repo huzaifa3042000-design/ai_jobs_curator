@@ -107,10 +107,13 @@ export async function getJobs({
 
         return (data || []).map((scoreRecord) => {
             const job = scoreRecord.jobs;
+            console.log('job');
+            console.log(job);
             const feedback = job?.user_feedback?.[0] || null;
             const { user_feedback, ...jobRest } = job || {};
             return {
                 ...jobRest,
+                // id: jobRest.id ?? scoreRecord.job_id,
                 score: scoreRecord.score || null,
                 reasoning: scoreRecord.reasoning || null,
                 risk_score: scoreRecord.risk_score || null,
@@ -275,7 +278,7 @@ export async function getLatestFetchCompletedAt(userId, savedSearchId) {
 // ── Scores ───────────────────────────────────────────────────────
 
 export async function upsertJobScores(scores) {
-    logger.info(`Upserting ${scores.length} job scores`);
+    logger.debug(`Upserting ${scores.length} job scores`);
     if (!scores.length) return [];
     const { data, error } = await supabase
         .from("job_scores")

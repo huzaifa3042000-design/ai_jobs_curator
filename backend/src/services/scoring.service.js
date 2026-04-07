@@ -96,6 +96,7 @@ export async function scoreNewJobs(userId = DEFAULT_USER_ID, batchSize = 5) {
         const ruleScore = ruleBasedScore(job, search);
 
         const finalScore = Math.round(llmScore.score * 0.6 + ruleScore.score * 0.4);
+        logger.debug(`Final score: ${finalScore}`);
 
         scores.push({
           job_id: job.id,
@@ -120,6 +121,6 @@ export async function scoreNewJobs(userId = DEFAULT_USER_ID, batchSize = 5) {
     }
   }
 
-  logger.info(`Scored ${totalScored} jobs for ${searches.length} searches`);
+  logger.debug(`Scored ${totalScored} jobs for ${searches.length} searches`);
   return totalScored;
 }
