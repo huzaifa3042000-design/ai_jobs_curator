@@ -91,7 +91,7 @@ export async function getJobs({
         budget_match_score,
         client_quality_score,
         computed_at,
-        jobs(
+        jobs!inner(
           *,
           user_feedback!left(feedback)
         )
